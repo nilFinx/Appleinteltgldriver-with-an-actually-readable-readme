@@ -1,5 +1,5 @@
-#ifndef _FAKE_IRIS_XE_FRAMEBUFFER_HPP_
-#define _FAKE_IRIS_XE_FRAMEBUFFER_HPP_
+/* #ifndef _FAKE_IRIS_XE_FRAMEBUFFER_HPP_ */
+/* #define _FAKE_IRIS_XE_FRAMEBUFFER_HPP_ */
 
 #include <IOKit/graphics/IOFramebuffer.h>
 #include <IOKit/pci/IOPCIDevice.h> // for IOPCIDevice
@@ -10,6 +10,12 @@
 #include <IOKit/pci/IOPCIDevice.h>
 #include <IOKit/IOWorkLoop.h>
 #include <IOKit/IOCommandGate.h>
+#include <libkern/OSAtomic.h>
+// OR (for newer versions)
+#include <os/atomic.h>
+
+extern "C" void OSMemoryBarrier(void);
+#define OSMemoryBarrier() __asm__ volatile("" ::: "memory")
 
       
 class FakeIrisXEFramebuffer : public IOFramebuffer
@@ -17,14 +23,21 @@ class FakeIrisXEFramebuffer : public IOFramebuffer
 {
     OSDeclareDefaultStructors(FakeIrisXEFramebuffer)
 
-    
+
 private:
     
     IOInterruptEventSource* vsyncSource;
-        IOTimerEventSource* vsyncTimer;
+    IOTimerEventSource* vsyncTimer = nullptr;
+    IODisplayModeID supportedModes[1] = {0};
+    IOTimerEventSource* displayInjectTimer = nullptr;
+    IOWorkLoop* workLoop = nullptr;
 
+    volatile bool driverActive;
+        IOLock* timerLock;
     
+   
 protected:
+ 
     IOMemoryMap* vramMap;
     IOMemoryMap* mmioMap;
     IOBufferMemoryDescriptor* vramMemory;
@@ -33,9 +46,9 @@ protected:
         IODisplayModeID currentMode;
         IOIndex currentDepth;
         size_t vramSize;
-    IOWorkLoop* workLoop;
     IOCommandGate* commandGate;
-    IOBufferMemoryDescriptor* framebufferSurface;
+    IOMemoryDescriptor* framebufferSurface;
+
     IOBufferMemoryDescriptor* cursorMemory;
     IOBufferMemoryDescriptor* framebufferMemory;
     
@@ -45,34 +58,72 @@ protected:
      
     IOIndex currentConnection;
       bool displayOnline;
-    
-    
-    
-    
+    bool fullyInitialized = false;
+    IOLock* powerLock;
+    bool shuttingDown = false;
+
+    // Safe MMIO access methods
+       uint32_t safeMMIORead(uint32_t offset) {
+           if (!mmioBase || offset >= mmioMap->getLength()) {
+               IOLog("⚠️ Invalid MMIO read at 0x%X\n", offset);
+               return 0xFFFFFFFF;
+           }
+           return *(volatile uint32_t*)(mmioBase + offset);
+       }
+       
+       void safeMMIOWrite(uint32_t offset, uint32_t value) {
+           if (!mmioBase || offset >= mmioMap->getLength()) {
+               IOLog("⚠️ Invalid MMIO write at 0x%X\n", offset);
+               return;
+           }
+           *(volatile uint32_t*)(mmioBase + offset) = value;
+                  #ifdef OSMemoryBarrier
+                  OSMemoryBarrier();
+                  #else
+                  __asm__ volatile("mfence" ::: "memory"); // x86 specific
+                  #endif
+
+       }
     
  public:
+    
+    
     bool start(IOService* provider) override;
-void stop(IOService* provider) override;
-    virtual bool isConsoleDevice()override;
+    void stop(IOService* provider) override;
     virtual bool           init(OSDictionary* dict) override;
+    bool   setupWorkLoop();
+
+
+    virtual bool isConsoleDevice() const;
     virtual void           free() override;
     void notifyServer(IOSelect event);
     virtual void startIOFB();
+    virtual IOWorkLoop* getWorkLoop() const override;
+
+    bool controllerEnabled = false;
+
+    bool displayPublished = false; // ✅ Member variable
     
-    /*
+    void disableController();
+    
+    void publishDisplay();
+    
+    
     enum {
         kPowerStateOff = 0,
-        kPowerStateOn = 1
+        kPowerStateOn,
+        kNumPowerStates
     };
-  
-     static IOPMPowerState powerStates[2];
-  */
+
+    static IOPMPowerState powerStates[kNumPowerStates];
+
     
     
     virtual IOService *probe(IOService *provider, SInt32 *score) override;
 
     
-    virtual IOReturn setPowerState(unsigned long whichState, IOService* whatDevice) override;
+    
+    virtual IOReturn setPowerState(unsigned long powerStateOrdinal, IOService* whatDevice) override;
 
     
     virtual const char* getPixelFormats() override;
@@ -102,21 +153,22 @@ void stop(IOService* provider) override;
                                              UInt32* flags,
                                              IOMemoryDescriptor** memory) ;
 
-    IOReturn enableController() override;
+    virtual IOReturn enableController() override;
+    
 
-
-    IOReturn getPixelInformation(IODisplayModeID displayMode,
+   virtual IOReturn getPixelInformation(IODisplayModeID displayMode,
                                  IOIndex depth,
                                  IOPixelAperture aperture,
                                  IOPixelInformation* info) override;
 
-    IOReturn getCurrentDisplayMode(IODisplayModeID* displayMode, IOIndex* depth) override;
+   virtual IOReturn getCurrentDisplayMode(IODisplayModeID* displayMode, IOIndex* depth) override;
 
     
 
     virtual IOReturn setAttributeForConnection(IOIndex connectIndex, IOSelect attribute, uintptr_t value) override;
     
     virtual IOReturn flushDisplay(void) ;
+    
     
     virtual void deliverFramebufferNotification(IOIndex index, UInt32 event, void* info);
 
@@ -183,10 +235,9 @@ void stop(IOService* provider) override;
     void vsyncTimerFired(OSObject* owner, IOTimerEventSource* sender);
     
     void vsyncOccurred(OSObject* owner, IOInterruptEventSource* src, int count);
- 
     
-    
-    
+
+
     
 };
 
@@ -195,4 +246,4 @@ void stop(IOService* provider) override;
 
 
 
-#endif /* _FAKE_IRIS_XE_FRAMEBUFFER_HPP_ */
+/* #endif  _FAKE_IRIS_XE_FRAMEBUFFER_HPP_ */
