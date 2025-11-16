@@ -1,5 +1,6 @@
 /* #ifndef _FAKE_IRIS_XE_FRAMEBUFFER_HPP_ */
 /* #define _FAKE_IRIS_XE_FRAMEBUFFER_HPP_ */
+#pragma once
 
 #include <IOKit/graphics/IOFramebuffer.h>
 #include <IOKit/pci/IOPCIDevice.h> // for IOPCIDevice
@@ -23,6 +24,8 @@ class FakeIrisXEFramebuffer : public IOFramebuffer
 {
     OSDeclareDefaultStructors(FakeIrisXEFramebuffer)
 
+    friend class IOFramebufferUserClient;
+    
 
 private:
     
@@ -35,8 +38,6 @@ private:
     volatile bool driverActive;
         IOLock* timerLock;
     
-   
-private:
     // Cursor state
     SInt32 cursorX, cursorY;
     bool cursorVisible;
@@ -56,8 +57,22 @@ private:
     
     void activatePowerAndController();
     
-    void initPowerManagement();
+    bool initPowerManagement();
 
+    volatile void *  wsFrontBuffer = nullptr;
+
+      // simple gamma cache
+      struct { bool set=false; UInt16 table[256*3]; } gamma{};
+
+      // helpers
+      void waitVBlank();       // simple vblank poll
+    
+    /*
+    IOBufferMemoryDescriptor* fFBMemoryDescriptor;
+    void* fFB;
+    */
+    
+    
     
 protected:
  
@@ -69,11 +84,11 @@ protected:
         IODisplayModeID currentMode;
         IOIndex currentDepth;
         size_t vramSize;
-    IOCommandGate* commandGate;
     IOMemoryDescriptor* framebufferSurface;
 
     IOBufferMemoryDescriptor* cursorMemory;
-    IOBufferMemoryDescriptor* framebufferMemory;
+
+    
     
     bool                   initializeHardware();
      bool                   setupVRAM();
@@ -108,8 +123,50 @@ protected:
 
        }
     
+    
+    
+    
+    
  public:
     
+    bool fNeedFlush = false;   // <-- REQUIRED (you were missing this)
+
+    
+    IOCommandGate* commandGate;
+
+    void scheduleFlushFromAccelerator(); // called from accelerator
+        IOReturn staticFlushAction(OSObject *owner, void *arg0, void *arg1, void *arg2, void *arg3);
+        
+    
+    void mapFramebufferIntoGGTT(IOPhysicalAddress phys, size_t size);
+
+    
+    static constexpr uint32_t H_ACTIVE = 1920;
+    static constexpr uint32_t V_ACTIVE = 1080;
+
+    uint32_t getWidth()  const { return H_ACTIVE; }
+     uint32_t getHeight() const { return V_ACTIVE; }
+    uint32_t getStride() { return 7680; }
+
+    
+    IOBufferMemoryDescriptor* framebufferMemory;
+    
+    IOBufferMemoryDescriptor* fFramebufferMemory { nullptr };
+ 
+    
+     uint64_t getFramebufferPhysAddr() const {
+         return framebufferMemory ? framebufferMemory->getPhysicalAddress() : 0;
+     }
+    
+    
+//   uint64_t fFBPhys{0};
+
+    IOBufferMemoryDescriptor* getFBMemory() const { return framebufferMemory; }
+   // uint64_t getFramebufferPhysAddr() const { return fFBPhys; }
+
+    
+    void*    getFramebufferKernelPtr() const; // from IOBufferMemoryDescriptor::getBytesNoCopy()
+
     
     
     
@@ -142,6 +199,10 @@ protected:
 
     static IOPMPowerState powerStates[kNumPowerStates];
 
+
+    
+    virtual IOReturn setAbltFramebuffer(void * buffer) ;     // Front-buffer pointer from WS
+
     
     
     virtual IOService *probe(IOService *provider, SInt32 *score) override;
@@ -157,9 +218,11 @@ protected:
     
     virtual UInt64 getPixelFormatsForDisplayMode(IODisplayModeID displayMode, IOIndex depth) override;
     virtual IOReturn setDisplayMode(IODisplayModeID displayMode, IOIndex depth) override;
+   
     virtual IOReturn flushFramebuffer(void) ;
-    virtual UInt32 getConnectionCount() override;
+ 
     
+    virtual UInt32 getConnectionCount() override;
     
     virtual IOReturn getStartupDisplayMode(IODisplayModeID *displayMode, IOIndex *depth) override;
     virtual IOReturn getAttributeForConnection(IOIndex connectIndex, IOSelect attribute, uintptr_t *value) override;
@@ -214,7 +277,7 @@ protected:
     virtual IOItemCount getDisplayModeCount(void) override;
 
     
-        virtual IOReturn  getAttribute(IOSelect attribute, uintptr_t* value) override;
+        virtual IOReturn  getAttribute(IOSelect attr, uintptr_t *value) override;
     
         virtual IOReturn  setAttribute(IOSelect attribute, uintptr_t value) override;
         
@@ -265,7 +328,53 @@ protected:
     void vsyncOccurred(OSObject* owner, IOInterruptEventSource* src, int count);
     
 
+    // Essential methods for IOFramebufferUserClient to function
+    virtual IOReturn getAttributeForIndex(IOSelect attribute, UInt32 index, UInt32* value) ;
+    virtual IOReturn setProperties(OSObject* properties) override;
 
+    // Optional but recommended for display control
+    virtual IOReturn validateDetailedTiming(void* desc, UInt32* score) ;
+    virtual IOReturn setDetailedTimings(OSObject* params) ;
+    virtual IOReturn setInterruptState(void* ref, UInt32 state) override;
+    virtual IOReturn handleEvent(IOFramebuffer* fb, void* ref, UInt32 event, void* info) ;
+
+    // Optional: supports brightness, gamma, transform, etc.
+    virtual IOReturn doControl(UInt32 command, void* params, UInt32 size) ;
+    virtual IOReturn extControl(OSObject* params) ;
+    virtual void transformLocation(IOGPoint* loc, IOOptionBits options) ;
+    
+    // in class FakeIrisXEFramebuffer : public IOService / IOFramebuffer...
+    IOTimerEventSource* fVBlankTimer = nullptr;
+    IOWorkLoop* fWorkLoop = nullptr;   // likely already present
+    
+    void vblankTick(IOTimerEventSource* sender);
+
+    
+    
+    
+    void probeHPDandAUX();
+    void probeTranscoders();
+    
+ 
+    void*    getFB() const { return kernelFBPtr; }
+    size_t   getFBSize() const { return kernelFBSize; }
+    uint64_t getFBPhysAddr() const { return kernelFBPhys; }
+
+    void*    kernelFBPtr   = nullptr;
+        size_t   kernelFBSize  = 0;
+        uint64_t kernelFBPhys  = 0;
+    
+    
+    
+    virtual IOReturn newUserClient(task_t owningTask,
+                                   void* securityID,
+                                   UInt32 type,
+                                   IOUserClient** handler) override;
+
+    bool makeUsable();
+
+    
+    
     
 };
 

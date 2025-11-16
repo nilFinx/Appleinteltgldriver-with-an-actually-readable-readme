@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>com_anomy_driver_FakeIrisXEFramebuffer</string>
+	<string>com.anomy.driver.FakeIrisXEFramebuffer</string>
 	<key>CFBundleExecutable</key>
 	<string>FakeIrisXEFramebuffer</string>
 	<key>CFBundleName</key>
@@ -26,11 +26,7 @@
 	<dict>
 		<key>FakeIrisXEFramebuffer</key>
 		<dict>
-			<key>IOFramebufferSharedUserClient</key>
-			<string>IOAccelSharedUserClient</string>
 			<key>IOClass</key>
-			<string>FakeIrisXEFramebuffer</string>
-			<key>IOName</key>
 			<string>FakeIrisXEFramebuffer</string>
 			<key>IOProviderClass</key>
 			<string>IOPCIDevice</string>
@@ -38,84 +34,50 @@
 			<string>0x9A498086</string>
 			<key>IONameMatch</key>
 			<string>GFX0</string>
-			<key>IOFramebuffer</key>
-			<true/>
-			<key>VRAM,totalsize</key>
-			<integer>134217728</integer>
-			<key>VRAM,totalMB</key>
-			<integer>128</integer>
 			<key>built-in</key>
 			<true/>
 			<key>AAPL,HasPanel</key>
 			<true/>
-			<key>IOFBNeedsRefresh</key>
-			<true/>
-			<key>IOFBTransparency</key>
-			<true/>
-			<key>IOFBNumberOfConnections</key>
-			<integer>1</integer>
-			<key>IOFBConfig</key>
-			<integer>1</integer>
-			<key>IOFBCurrentPixelFormat</key>
-			<string>ARGB8888</string>
-			<key>IOFBClientConnectIndex</key>
-			<integer>1</integer>
-			<key>IOFBUserClientClass</key>
-			<string>IOFramebufferUserClient</string>
-			<key>IOUserClientClass</key>
-			<string>IOFramebufferUserClient</string>
-			<key>IOFramebufferDisplay</key>
-			<true/>
-			<key>IOFBCursorSizes</key>
-			<array>
-				<integer>32</integer>
-			</array>
-			<key>IOFBSupportedPixelFormats</key>
-			<array>
-				<string>ARGB8888</string>
-				<string>RGBA8888</string>
-			</array>
-			<key>IOAccelTypes</key>
-			<array>
-				<string>Accel</string>
-				<string>Metal</string>
-				<string>OpenGL</string>
-				<string>Quartz</string>
-			</array>
-			<key>IOGLBundleName</key>
-			<string>AppleIntelFramebuffer</string>
-			<key>IOGVAHEVCDecode</key>
-			<true/>
-			<key>MetalPluginName</key>
-			<string>IntelAccelerator</string>
-			<key>MetalPluginClassName</key>
-			<string>IntelAccelerator</string>
-			<key>IOAccelEnabled</key>
-			<true/>
-			<key>IOAccelerator</key>
-			<string>IntelAccelerator</string>
-			<key>IOAccelIndex</key>
-			<integer>0</integer>
-			<key>IOAccelRevision</key>
-			<integer>2</integer>
-			<key>IOGVAHEVCEncode</key>
-			<true/>
-			<key>IOGVAVTDecodeSupport</key>
-			<true/>
-			<key>IOGVAVTEnable</key>
-			<true/>
-			<key>IOSurfaceSupport</key>
-			<true/>
-			<key>IOSurfaceAccelerator</key>
-			<true/>
-			<key>AAPL,slot-name</key>
-			<string>Internal@0,2,0</string>
-			<key>IOVARendererID</key>
-			<integer>215063552</integer>
-			<key>IOProbeScore</key>
-			<integer>50000</integer>
 			<key>IOKitDebug</key>
 			<integer>65535</integer>
+			<key>IOProbeScore</key>
+			<integer>50000</integer>
+		</dict>
+		<key>FakeIrisXEAccelerator</key>
+		<dict>
+			<key>IOClass</key>
+			<string>FakeIrisXEAccelerator</string>
+			<key>IOProviderClass</key>
+			<string>FakeIrisXEFramebuffer</string>
+			<key>IONameMatch</key>
+			<string>FakeIrisXEFramebuffer</string>
+			<key>IOMatchCategory</key>
+			<string>IOAccelerator</string>
+			<key>IOUserClientClass</key>
+			<string>FakeIrisXEAcceleratorUserClient</string>
+			<key>MetalPluginClassName</key>
+			<string>FakeIrisXEAccelerator</string>
+			<key>IOGVAHEVCDecode</key>
+			<true/>
+			<key>IOGVAGPUSupported</key>
+			<true/>
+			<key>MetalPlugin</key>
+			<true/>
+		</dict>
+		<key>FakeIrisXEAccelDevice</key>
+		<dict>
+			<key>CFBundleIdentifier</key>
+			<string>com.anomy.driver.FakeIrisXEFramebuffer</string>
+			<key>IOProviderClass</key>
+			<string>FakeIrisXEFramebuffer</string>
+			<key>IONameMatch</key>
+			<string>FakeIrisXEFramebuffer</string>
+			<key>IOClass</key>
+			<string>FakeIrisXEAccelDevice</string>
+			<key>MetalPluginClassName</key>
+			<string>FakeIrisXEAccelerator</string>
+			<key>IOGVACapabilities</key>
+			<string>basic</string>
 		</dict>
 	</dict>
 	<key>OSBundleLibraries</key>
@@ -127,19 +89,13 @@
 		<key>com.apple.kpi.unsupported</key>
 		<string>20.6.0</string>
 		<key>com.apple.iokit.IOPCIFamily</key>
-		<string>2.9</string>
+		<string>1.0.0</string>
 		<key>com.apple.iokit.IOGraphicsFamily</key>
-		<string>569.0</string>
+		<string>1.0.0</string>
 		<key>com.apple.iokit.IOACPIFamily</key>
-		<string>1.4</string>
+		<string>1.0.0</string>
 		<key>com.apple.iokit.IOHIDFamily</key>
 		<string>1.0.0</string>
-		<key>com.apple.iokit.IOSlowAdaptiveClockingFamily</key>
-		<string>1.0.0</string>
-		<key>com.apple.iokit.IOAcceleratorFamily2</key>
-		<string>442.0.0</string>
-		<key>com.apple.iokit.IOSurface</key>
-		<string>290.0</string>
 	</dict>
 </dict>
 </plist>
