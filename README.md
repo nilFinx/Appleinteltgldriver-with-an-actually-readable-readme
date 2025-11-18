@@ -5,7 +5,7 @@ Source files are not updated regularly.......
 
 you can help in this project.
 
-check release section for latest working kext..
+
 
 
 what is working in latest version:
