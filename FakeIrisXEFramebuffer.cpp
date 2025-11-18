@@ -2763,10 +2763,11 @@ IOReturn FakeIrisXEFramebuffer::clientMemoryForType(UInt32 type, UInt32* flags, 
         return kIOReturnSuccess;
     }
 
+   
     if (type == kIOFBSystemAperture && framebufferMemory) {
         framebufferMemory->retain();
         *memory = framebufferMemory;
-        if (flags) *flags = kIOMapReadOnly;
+        if (flags) *flags = 0; // allow read/write by default
         return kIOReturnSuccess;
     }
 
