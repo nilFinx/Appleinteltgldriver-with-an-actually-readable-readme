@@ -94,3 +94,20 @@ FB mapping → user space works
 Kernel sees CLEAR commands
 
 ✔ Accelerator stack is working end-to-end.
+
+
+
+The remaining steps are:
+
+1. GEM buffer objects
+2. GGTT binder
+3. Command streamer ring
+4. Execlists context
+5. GuC firmware
+6. BLT engine
+7. 3D pipeline
+8. Metal integration
+These are huge, but not unknown.
+We follow Linux i915 (which is open-source).
+We follow Intel PRM Vol15–17
+
