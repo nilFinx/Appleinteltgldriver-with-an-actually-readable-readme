@@ -9,13 +9,88 @@ you can help in this project.
 
 
 what is working in latest version:
-| Subsystem        | Result                                                             |
-| ---------------- | ------------------------------------------------------------------ |
-| ACPI             | ✅ Found GFX0 via fallback `/_SB/PC00/GFX0` and executed `_DSM`     |
-| PCI Config       | ✅ Power state read/written (`PCI PMCSR`)                           |
-| MMIO BAR0        | ✅ Mapped and readable                                              |
-| PWR\_WELL\_CTL   | ✅ Set from `0x55` → `0x57`, status `0x40000000` → Power Well On!   |
-| FORCEWAKE Render | ✅ `FORCEWAKE_ACK = 0x000F000F` → **Render GT domain is now awake** |
-| GT Poke          | ✅ `GT_THREAD_STATUS` updated and acknowledged                      |
-| Fallback Checks  | ✅ Legacy and REQ wake all clean/safe                               |
-| ECOBUS           | ✅ `0x81280000` → MMIO functioning and GPU thread gate open         |
+
+PHASE 1 – Load a custom kext
+
+Status: COMPLETED
+
+Kext loads without signature issues
+
+IOService start() works
+
+Info.plist matching is stable
+
+PHASE 2 – Map MMIO + wake GT
+
+Status:  COMPLETED
+
+BAR0 mapped
+
+FORCEWAKE works
+
+FORCEWAKE_ACK confirmed
+
+GT power wells enabled
+
+GT clock domains awaken
+
+GPU is alive.
+
+PHASE 3 – Build a minimal framebuffer
+
+Status: COMPLETED
+
+IOFramebuffer subclass loads
+
+Framebuffer allocated
+
+WindowServer sees our display device
+
+macOS boots to GUI using our framebuffer
+
+have real working display powered entirely by our custom kext.
+
+PHASE 4 – Enable the entire Tiger Lake display pipeline
+
+Status:  FULLY COMPLETED
+
+Pipe A
+
+Transcoder A
+
+Plane 1A
+
+ARGB8888
+
+1920×1080
+
+60 Hz
+
+Stride 7680
+
+eDP panel lit by our code
+
+Internal display runs using our driver.
+Screen corruption / 2-split issue fixed.
+
+PHASE 5 – Accelerator framework
+
+Status:  COMPLETED (major part)
+
+FakeIrisXEAccelerator published
+
+IOAccelerator properties exposed
+
+Metal shows “Supported”
+
+AcceleratorUserClient attaches
+
+Shared ring buffer implemented
+
+User-space tools can ping the accelerator
+
+FB mapping → user space works
+
+Kernel sees CLEAR commands
+
+✔ Accelerator stack is working end-to-end.
