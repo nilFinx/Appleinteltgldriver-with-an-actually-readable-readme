@@ -1,6 +1,14 @@
 # AppleintelTGLDriver.kext
 
-A Kext that improves s upport of Iris Xe graphics on macOS. Contributions are very welcome.
+***__Common sense warning!__***
+
+I am NOT trying to contribute to the project. I have never made a Kext for macOS in my life. I am no longer interested in helping any of your OCS + OCAT/OCC EFI. I am not going to give you my EFI for "references". I am not releasing the proppy.lua file.
+
+I don't know what went on my mind to even make this repo, but this repo makes the README slightly more readable.
+
+I don't support the project. To anybody genuinely waiting for this project, it won't happen, at least not until any huge contributor comes, which would be a miracle. I would rather work on virtio-gpu kext instead of fixing ONE iGPU.
+
+A Kext that "improves" support of Iris Xe graphics on macOS. Contributions are very welcome.
 
 This project is not w*rked on regularly, as the owner only knows how to vibe code.
 
