@@ -2,7 +2,7 @@
 
 ***__Common sense warning!__***
 
-I am NOT trying to contribute to the project. I have never made a Kext for macOS in my life. I am no longer interested in helping any of your OCS + OCAT/OCC EFI. I am not going to give you my EFI for "references". I am not releasing the proppy.lua file.
+I am NOT trying to contribute to the project. I have never made a Kext for macOS in my life. I am no longer interested in helping any of your OCS + OCAT/OCC EFI. I am not going to give you my EFI for "references". I am not releasing the proppy.lua file. I am no longer interested in doing anything with the Hackintosh community - at least the majority of it. I'm tired with all the people who intentionally tries to ignore the rules, or those who literally ignores an advice that somebody gives (like **multiple** people saying that their hardware is NOT supported in any capacity, and still somehow trying.)
 
 I don't know what went on my mind to even make this repo, but this repo makes the README slightly more readable.
 
