@@ -12,13 +12,13 @@ A Kext that "improves" support of Iris Xe graphics on macOS. Contributions are v
 
 This project is not w*rked on regularly, as the owner only knows how to vibe code.
 
-# Status
+# What's done
 
-* Get the Kext to load - DONE
+## Get the Kext to load
 
 (insert garbage info here)
 
-* Map MMIO + wake - DONE
+## Map MMIO + wake
 
 BAR0 mapped
 
@@ -32,7 +32,7 @@ GT clock domains awaken
 
 "GPU is alive."
 
-* Build a minimal framebuffer - DONE
+## Build a minimal framebuffer
 
 IOFramebuffer subclass loads
 
@@ -44,7 +44,7 @@ macOS boots to GUI using our framebuffer
 
 have real working display powered entirely by our custom kext.
 
-* Enable the entire Tiger Lake display pipeline - DONE
+## Enable the entire Tiger Lake display pipeline
 
 Pipe A
 
@@ -65,7 +65,7 @@ eDP panel lit by our code
 Internal display runs using our driver.
 Screen corruption / 2-split issue fixed.
 
-* Accelerator framework...?? - DONE
+## Accelerator framework...??
 
 FakeIrisXEAccelerator published
 
@@ -86,8 +86,7 @@ Kernel sees CLEAR commands
 ✔ Accelerator stack is working end-to-end.
 
 
-
-The remaining steps are:
+# TODO
 
 1. GEM buffer objects
 2. GGTT binder
