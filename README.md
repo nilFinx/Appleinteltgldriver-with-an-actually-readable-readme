@@ -1,28 +1,16 @@
 # AppleintelTGLDriver.kext
-Working on custom kext to get Intel Iris XE graphics works on hackintosh. Inviting Devloper to work on this project and let start Iris XE on HAckintosh
 
-Source files are not updated regularly.......
+A Kext that improves s upport of Iris Xe graphics on macOS. Contributions are very welcome.
 
-you can help in this project.
+This project is not w*rked on regularly, as the owner only knows how to vibe code.
 
+# Status
 
+* Get the Kext to load - DONE
 
+(insert garbage info here)
 
-what is working in latest version:
-
-PHASE 1 – Load a custom kext
-
-Status: COMPLETED
-
-Kext loads without signature issues
-
-IOService start() works
-
-Info.plist matching is stable
-
-PHASE 2 – Map MMIO + wake GT
-
-Status:  COMPLETED
+* Map MMIO + wake - DONE
 
 BAR0 mapped
 
@@ -34,11 +22,9 @@ GT power wells enabled
 
 GT clock domains awaken
 
-GPU is alive.
+"GPU is alive."
 
-PHASE 3 – Build a minimal framebuffer
-
-Status: COMPLETED
+* Build a minimal framebuffer - DONE
 
 IOFramebuffer subclass loads
 
@@ -50,9 +36,7 @@ macOS boots to GUI using our framebuffer
 
 have real working display powered entirely by our custom kext.
 
-PHASE 4 – Enable the entire Tiger Lake display pipeline
-
-Status:  FULLY COMPLETED
+* Enable the entire Tiger Lake display pipeline - DONE
 
 Pipe A
 
@@ -73,9 +57,7 @@ eDP panel lit by our code
 Internal display runs using our driver.
 Screen corruption / 2-split issue fixed.
 
-PHASE 5 – Accelerator framework
-
-Status:  COMPLETED (major part)
+* Accelerator framework...?? - DONE
 
 FakeIrisXEAccelerator published
 
